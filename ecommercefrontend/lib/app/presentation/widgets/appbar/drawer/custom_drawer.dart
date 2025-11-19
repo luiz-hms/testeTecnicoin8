@@ -28,6 +28,11 @@ class CustomDrawer extends StatelessWidget {
             title: const Text("Carrinho"),
             onTap: () => context.goNamed(NamedRoute.checkoutPage),
           ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text("Configurações"),
+            onTap: () => context.goNamed(NamedRoute.settingsPage),
+          ),
         ],
       ),
     );

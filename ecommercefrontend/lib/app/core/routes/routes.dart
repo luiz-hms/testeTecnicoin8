@@ -4,6 +4,7 @@ import 'package:ecommercefrontend/app/presentation/pages/home_screen/home_screen
 import 'package:go_router/go_router.dart';
 
 import '../../presentation/pages/checkout_page/checkout_page.dart';
+import '../../presentation/pages/settings_page/settings_label_page/settings_label_page.dart';
 import 'named_routes.dart';
 
 class Routes {
@@ -27,6 +28,11 @@ class Routes {
       path: NamedRoute.checkoutPage,
       name: NamedRoute.checkoutPage,
       builder: (_, __) => const CheckoutPage(),
+    ),
+    GoRoute(
+      path: NamedRoute.settingsPage,
+      name: NamedRoute.settingsPage,
+      builder: (_, __) => const WhiteLabelSettingsPage(),
     ),
   ];
 }

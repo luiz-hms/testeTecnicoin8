@@ -6,7 +6,8 @@ import 'routes.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: NamedRoute.loginPage,
+    initialLocation: NamedRoute.settingsPage,
+    //initialLocation: NamedRoute.loginPage,
     routes: Routes.route,
     errorBuilder: (_, __) => const NotFoundPage(),
   );

@@ -1,0 +1,60 @@
+﻿=====================================
+   TESTE COMPLETO DE ENDPOINTS API   
+=====================================
+
+Loja : O termo 
+'Loja' não é 
+reconhecido como 
+nome de cmdlet, 
+função, arquivo de 
+script ou programa 
+operável. 
+Verifique a grafia 
+do nome ou, se um 
+caminho tiver sido 
+incluído, veja se 
+o caminho está 
+correto e tente 
+novamente.
+No C:\Users\luiz\De
+sktop\iaia\test-all
+-endpoints.ps1:62 
+caractere:59
++ ... register1 = 
+Test-Endpoint 
+-Name "1. POST 
+/auth/register 
+(Loja 1)" -Me ...
++                  
+                   
+                   
+      ~~~~
+    + CategoryInfo 
+             : Ob  
+  jectNotFound:    
+ (Loja:String)     
+[], CommandNot    
+FoundException
+    + FullyQualifi 
+   edErrorId : Co  
+  mmandNotFoundE   
+ xception
+ 
+
+10. GET /products (pÃºblico)...
+   âo. 200
+   Total: 0 | PÃ¡gina: 0 itens
+
+ðY'¤ USUÃ?RIOS
+
+=====================================
+   RESUMO DOS TESTES
+=====================================
+
+Total de testes: 1
+Sucesso: 1
+Falhas: 0
+Taxa de sucesso: 100%
+
+ðYZ% TODOS OS ENDPOINTS FUNCIONANDO!
+

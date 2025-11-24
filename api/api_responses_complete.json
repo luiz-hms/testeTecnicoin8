@@ -1,0 +1,54 @@
+﻿{
+    "11_profile":  {
+                       "error":  "O servidor remoto retornou um erro: (401) Não Autorizado.",
+                       "success":  false
+                   },
+    "3_refresh":  {
+                      "error":  "O servidor remoto retornou um erro: (400) Solicitação Incorreta.",
+                      "success":  false
+                  },
+    "7_whitelabel_updated":  {
+                                 "error":  "O servidor remoto retornou um erro: (404) Não Localizado.",
+                                 "success":  false
+                             },
+    "12_update_profile":  {
+                              "error":  "O servidor remoto retornou um erro: (401) Não Autorizado.",
+                              "success":  false
+                          },
+    "8_sync_products":  {
+                            "error":  "O servidor remoto retornou um erro: (401) Não Autorizado.",
+                            "success":  false
+                        },
+    "9_list_products":  {
+                            "success":  true,
+                            "data":  {
+                                         "data":  [
+
+                                                  ],
+                                         "total":  0,
+                                         "page":  1,
+                                         "pageSize":  2,
+                                         "totalPages":  0
+                                     }
+                        },
+    "5_get_client":  {
+                         "error":  "O servidor remoto retornou um erro: (404) Não Localizado.",
+                         "success":  false
+                     },
+    "2_login":  {
+                    "error":  "O servidor remoto retornou um erro: (400) Solicitação Incorreta.",
+                    "success":  false
+                },
+    "4_whitelabel":  {
+                         "error":  "O servidor remoto retornou um erro: (404) Não Localizado.",
+                         "success":  false
+                     },
+    "1_register":  {
+                       "error":  "O servidor remoto retornou um erro: (500) Erro Interno do Servidor.",
+                       "success":  false
+                   },
+    "6_update_client":  {
+                            "error":  "O servidor remoto retornou um erro: (404) Não Localizado.",
+                            "success":  false
+                        }
+}

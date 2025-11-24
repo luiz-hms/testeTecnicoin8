@@ -1,29 +1,39 @@
 import 'package:dio/dio.dart';
+import 'package:ecommercefrontend/app/core/local_storage/local_storage.dart';
+import 'package:ecommercefrontend/app/core/rest_client/dio/interceptors/auth_interceptors.dart';
+import 'package:ecommercefrontend/app/core/rest_client/rest_client_exception.dart';
 import 'package:ecommercefrontend/app/core/rest_client/rest_client_response.dart';
 
+import '../../helpers/environments.dart';
 import '../rest_client.dart';
 
 class DioRestClient implements RestClient {
   late final Dio _dio;
   final _defaultOptions = BaseOptions(
-    baseUrl: '',
-    //baseUrl: Envarionments.param('base_url'),
+    baseUrl: Environments.param('base_url') ?? '',
   );
 
-  DioRestClient() {
-    _dio = Dio(_defaultOptions);
+  DioRestClient({
+    required LocalStorage localStorage,
+    BaseOptions? baseOptions,
+  }) {
+    _dio = Dio(baseOptions ?? _defaultOptions);
+    _dio.interceptors.addAll([
+      AuthInterceptors(localStorage: localStorage),
+      LogInterceptor(requestBody: true, responseBody: true),
+    ]);
   }
 
   @override
   RestClient unauth() {
-    // TODO: implement unauth
-    throw UnimplementedError();
+    _defaultOptions.extra['required_true'] = true;
+    return this;
   }
 
   @override
   RestClient auth() {
-    // TODO: implement auth
-    throw UnimplementedError();
+    _defaultOptions.extra['required_true'] = false;
+    return this;
   }
 
   @override
@@ -32,9 +42,19 @@ class DioRestClient implements RestClient {
     data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-  }) {
-    // TODO: implement delete
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers),
+      );
+
+      return _dioResponseConverter(response);
+    } on DioException catch (e) {
+      _throwRestClientException(e);
+    }
   }
 
   @override
@@ -42,9 +62,18 @@ class DioRestClient implements RestClient {
     String path, {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-  }) {
-    // TODO: implement get
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: Options(headers: headers),
+      );
+
+      return _dioResponseConverter(response);
+    } on DioException catch (e) {
+      _throwRestClientException(e);
+    }
   }
 
   @override
@@ -53,9 +82,19 @@ class DioRestClient implements RestClient {
     data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-  }) {
-    // TODO: implement patch
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _dio.patch(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers),
+      );
+
+      return _dioResponseConverter(response);
+    } on DioException catch (e) {
+      _throwRestClientException(e);
+    }
   }
 
   @override
@@ -64,9 +103,19 @@ class DioRestClient implements RestClient {
     data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-  }) {
-    // TODO: implement post
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers),
+      );
+
+      return _dioResponseConverter(response);
+    } on DioException catch (e) {
+      _throwRestClientException(e);
+    }
   }
 
   @override
@@ -75,9 +124,19 @@ class DioRestClient implements RestClient {
     data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-  }) {
-    // TODO: implement put
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers),
+      );
+
+      return _dioResponseConverter(response);
+    } on DioException catch (e) {
+      _throwRestClientException(e);
+    }
   }
 
   @override
@@ -87,8 +146,42 @@ class DioRestClient implements RestClient {
     data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
-  }) {
-    // TODO: implement request
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _dio.request(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers, method: method),
+      );
+
+      return _dioResponseConverter(response);
+    } on DioException catch (e) {
+      _throwRestClientException(e);
+    }
+  }
+
+  Future<RestClientResponse<T>> _dioResponseConverter<T>(
+    Response<dynamic> response,
+  ) async {
+    return RestClientResponse<T>(
+      data: response.data,
+      statusCode: response.statusCode,
+      statusMessage: response.statusMessage,
+    );
+  }
+
+  Never _throwRestClientException(DioException dioException) {
+    final response = dioException.response;
+    throw RestClientException(
+      error: dioException.error,
+      message: response?.statusMessage,
+      statusCode: response?.statusCode,
+      response: RestClientResponse(
+        data: response?.data,
+        statusCode: response?.statusCode,
+        statusMessage: response?.statusMessage,
+      ),
+    );
   }
 }

@@ -1,8 +1,16 @@
+import 'package:ecommercefrontend/app/core/depence_injection/service_locator.dart';
+import 'package:ecommercefrontend/app/core/helpers/mixins/validations.dart';
 import 'package:ecommercefrontend/app/core/routes/named_routes.dart';
+import 'package:ecommercefrontend/app/presentation/cubits/auth/login/login_cubit.dart';
+import 'package:ecommercefrontend/app/presentation/cubits/auth/login/login_state.dart';
 import 'package:ecommercefrontend/app/presentation/widgets/custom_fields/custom_fields.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
+
+import '../../../widgets/auth/login_banner.dart';
+import '../../../widgets/auth/auth_header.dart';
+import '../../../widgets/auth/auth_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,192 +19,157 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with Validations {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              spacing: 50,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: "Bem vindo ao \n",
-                    style: TextStyle(fontSize: 50, color: Colors.black),
-                    children: [
-                      TextSpan(
-                        text: "DevNology",
-                        style: TextStyle(
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.greenAccent,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    text: "Configure sua loja \n",
-                    style: TextStyle(fontSize: 24, color: Colors.black),
-                    children: [
-                      TextSpan(
-                        text: "e comece a vender!",
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.greenAccent,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Lottie.asset('assets/lottiefiles/Shopping.json'),
-              ],
+    return BlocProvider(
+      create: (context) => getIt<LoginCubit>(),
+      child: Scaffold(
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                spacing: 50,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [LoginBanner()],
+              ),
             ),
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 100),
-              width: double.maxFinite,
-              // height: double.maxFinite,
-              decoration: BoxDecoration(color: Colors.transparent),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Column(
-                  spacing: 50,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        text: "bem vindo de volta \n",
-                        style: TextStyle(
-                          fontSize: 30,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: "Entre com a sua conta",
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 100),
+                width: double.maxFinite,
+                // height: double.maxFinite,
+                decoration: BoxDecoration(color: Colors.transparent),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
+                    spacing: 50,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AuthHeader(
+                        title: "bem vindo de volta",
+                        subtitle: "Entre com a sua conta",
                       ),
-                    ),
-                    Form(
-                      child: Column(
-                        spacing: 20,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          TextFormField(decoration: FieldsDecoration('email')),
-                          TextFormField(
-                            decoration: FieldsDecoration(
-                              'senha',
-                              null,
-                              IconButton(
-                                onPressed: () {
-                                  print("object");
-                                },
-                                icon: Icon(Icons.visibility),
-                              ),
-                            ),
-                            obscureText: true,
-                          ),
-                          SizedBox(
-                            width: double.maxFinite,
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                padding: WidgetStateProperty.all<EdgeInsets>(
-                                  const EdgeInsets.all(18),
+                      BlocConsumer<LoginCubit, LoginState>(
+                        listener: (context, state) {
+                          if (state.errorMessage != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(state.errorMessage!)),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          return Form(
+                            key: _formKey,
+                            child: Column(
+                              spacing: 20,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                TextFormField(
+                                  controller: _emailController,
+                                  decoration: FieldsDecoration('email'),
+                                  validator: (value) => isNotEmpty(value),
                                 ),
-                                backgroundColor: WidgetStateProperty.all<Color>(
-                                  Colors.greenAccent,
-                                ),
-                                shape:
-                                    WidgetStateProperty.all<
-                                      RoundedRectangleBorder
-                                    >(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          15.0,
-                                        ),
-                                        side: const BorderSide(
-                                          color: Colors.transparent,
-                                        ),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  decoration: FieldsDecoration(
+                                    'senha',
+                                    null,
+                                    IconButton(
+                                      onPressed: () {
+                                        context
+                                            .read<LoginCubit>()
+                                            .togglePasswordVisibility();
+                                      },
+                                      icon: Icon(
+                                        state.isPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
                                       ),
                                     ),
-                              ),
-                              onPressed: () {
-                                context.replaceNamed(NamedRoute.homePage);
-                              },
-                              child: Text(
-                                'entrar'.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  ),
+                                  obscureText: !state.isPasswordVisible,
+                                  validator: (value) => isNotEmpty(value),
                                 ),
-                              ),
-                            ),
-                          ),
-
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "esqueci minha senha",
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-
-                          TextButton(
-                            onPressed: () =>
-                                context.goNamed(NamedRoute.registerPage),
-                            child: RichText(
-                              text: TextSpan(
-                                text: "Ainda não tem uma conta? ",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                                AuthButton(
+                                  text: 'entrar',
+                                  isLoading: state.isLoading,
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      context.read<LoginCubit>().login(
+                                        _emailController.text,
+                                        _passwordController.text,
+                                      );
+                                      context.replaceNamed(NamedRoute.homePage);
+                                    }
+                                  },
                                 ),
-                                children: [
-                                  TextSpan(
-                                    text: " Cadastre-se",
+
+                                TextButton(
+                                  onPressed: () {},
+                                  child: Text(
+                                    "esqueci minha senha",
                                     style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
                                       color: Colors.black54,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+
+                                TextButton(
+                                  onPressed: () =>
+                                      context.goNamed(NamedRoute.registerPage),
+                                  child: RichText(
+                                    text: TextSpan(
+                                      text: "Ainda não tem uma conta? ",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: " Cadastre-se",
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

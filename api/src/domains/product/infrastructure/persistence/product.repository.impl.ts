@@ -12,7 +12,7 @@ export class ProductRepositoryImpl implements IProductRepository {
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepository: Repository<ProductEntity>,
-  ) {}
+  ) { }
 
   async create(product: Product): Promise<Product> {
     const productEntity = new ProductEntity();
@@ -23,6 +23,13 @@ export class ProductRepositoryImpl implements IProductRepository {
     productEntity.imageUrl = product.imageUrl;
     productEntity.providerSourceId = product.providerSourceId;
     productEntity.provider = product.provider;
+    productEntity.category = product.category;
+    productEntity.material = product.material;
+    productEntity.department = product.department;
+    productEntity.gallery = product.gallery;
+    productEntity.hasDiscount = product.hasDiscount;
+    productEntity.discountValue = product.discountValue;
+    productEntity.stock = product.stock;
 
     const savedProduct = await this.productRepository.save(productEntity);
     return this.mapToDomain(savedProduct);
@@ -39,15 +46,38 @@ export class ProductRepositoryImpl implements IProductRepository {
     page: number,
     pageSize: number,
     searchTerm?: string,
+    sortBy: string = 'name',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    minPrice?: number,
+    maxPrice?: number,
+    provider?: string,
   ): Promise<PaginatedResponseDto<Product>> {
     const query = this.productRepository.createQueryBuilder('product');
 
     if (searchTerm) {
-      query.where(
-        'product.name ILIKE :searchTerm OR product.description ILIKE :searchTerm',
+      query.andWhere(
+        '(product.name ILIKE :searchTerm OR product.description ILIKE :searchTerm)',
         { searchTerm: `%${searchTerm}%` },
       );
     }
+
+    if (minPrice !== undefined) {
+      query.andWhere('product.price >= :minPrice', { minPrice });
+    }
+
+    if (maxPrice !== undefined) {
+      query.andWhere('product.price <= :maxPrice', { maxPrice });
+    }
+
+    if (provider) {
+      query.andWhere('product.provider = :provider', { provider });
+    }
+
+    // Sorting
+    // Map 'name' and 'price' to actual column names if needed, 
+    // but here they match the entity properties.
+    const sortColumn = sortBy === 'price' ? 'product.price' : 'product.name';
+    query.orderBy(sortColumn, sortOrder);
 
     const total = await query.getCount();
     const totalPages = Math.ceil(total / pageSize);
@@ -88,6 +118,13 @@ export class ProductRepositoryImpl implements IProductRepository {
       productEntity.imageUrl = product.imageUrl;
       productEntity.providerSourceId = product.providerSourceId;
       productEntity.provider = product.provider;
+      productEntity.category = product.category;
+      productEntity.material = product.material;
+      productEntity.department = product.department;
+      productEntity.gallery = product.gallery;
+      productEntity.hasDiscount = product.hasDiscount;
+      productEntity.discountValue = product.discountValue;
+      productEntity.stock = product.stock;
       return productEntity;
     });
 
@@ -104,6 +141,13 @@ export class ProductRepositoryImpl implements IProductRepository {
       productEntity.imageUrl,
       productEntity.providerSourceId,
       productEntity.provider,
+      productEntity.stock,
+      productEntity.category,
+      productEntity.material,
+      productEntity.department,
+      productEntity.gallery,
+      productEntity.hasDiscount,
+      productEntity.discountValue ? Number(productEntity.discountValue) : undefined,
       productEntity.createdAt,
       productEntity.updatedAt,
     );

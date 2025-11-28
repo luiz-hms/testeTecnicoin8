@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/routes/named_routes.dart';
+import '../../../cubits/auth/auth_cubit.dart';
+import '../../../cubits/auth/auth_state.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -28,10 +31,17 @@ class CustomDrawer extends StatelessWidget {
             title: const Text("Carrinho"),
             onTap: () => context.goNamed(NamedRoute.checkoutPage),
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text("Configurações"),
-            onTap: () => context.goNamed(NamedRoute.settingsPage),
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              if (state is AuthAuthenticated) {
+                return ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text("Configurações"),
+                  onTap: () => context.goNamed(NamedRoute.settingsPage),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ],
       ),

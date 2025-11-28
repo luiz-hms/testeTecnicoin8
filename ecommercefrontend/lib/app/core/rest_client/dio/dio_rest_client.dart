@@ -5,12 +5,13 @@ import 'package:ecommercefrontend/app/core/rest_client/rest_client_exception.dar
 import 'package:ecommercefrontend/app/core/rest_client/rest_client_response.dart';
 
 import '../../helpers/environments.dart';
+import '../../helpers/constants/constants.dart';
 import '../rest_client.dart';
 
 class DioRestClient implements RestClient {
   late final Dio _dio;
   final _defaultOptions = BaseOptions(
-    baseUrl: Environments.param('base_url') ?? '',
+    baseUrl: Environments.param(Constants.ENV_BASE_URL) ?? '',
   );
 
   DioRestClient({
@@ -26,13 +27,13 @@ class DioRestClient implements RestClient {
 
   @override
   RestClient unauth() {
-    _defaultOptions.extra['required_true'] = true;
+    _defaultOptions.extra['required_true'] = false;
     return this;
   }
 
   @override
   RestClient auth() {
-    _defaultOptions.extra['required_true'] = false;
+    _defaultOptions.extra['required_true'] = true;
     return this;
   }
 

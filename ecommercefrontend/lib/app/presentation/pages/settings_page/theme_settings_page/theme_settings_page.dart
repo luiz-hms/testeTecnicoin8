@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ecommercefrontend/app/presentation/cubits/theme/theme_cubit.dart';
+import '../../../widgets/settings/section_title.dart';
+import '../../../widgets/settings/color_picker_section.dart';
+import '../../../widgets/settings/banner_field.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
   const ThemeSettingsPage({super.key});
@@ -110,13 +113,15 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Seção de Cores
+                // Seção de Cores
                 const SectionTitle(title: 'Cores do Tema'),
                 const SizedBox(height: 16),
 
                 // Cor Primária
-                _buildColorPickerSection(
-                  'Cor Primária',
-                  primaryColor,
+                // Cor Primária
+                ColorPickerSection(
+                  label: 'Cor Primária',
+                  currentColor: primaryColor,
                   onColorChanged: (color) {
                     context.read<ThemeCubit>().updatePrimaryColor(color.value);
                   },
@@ -124,15 +129,17 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 const SizedBox(height: 24),
 
                 // Cor de Acento
-                _buildColorPickerSection(
-                  'Cor de Acento',
-                  accentColor,
+                // Cor de Acento
+                ColorPickerSection(
+                  label: 'Cor de Acento',
+                  currentColor: accentColor,
                   onColorChanged: (color) {
                     context.read<ThemeCubit>().updateAccentColor(color.value);
                   },
                 ),
                 const SizedBox(height: 32),
 
+                // Seção de Logo
                 // Seção de Logo
                 const SectionTitle(title: 'Logo da Aplicação'),
                 const SizedBox(height: 16),
@@ -184,6 +191,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 const SizedBox(height: 32),
 
                 // Seção de Banners
+                // Seção de Banners
                 const SectionTitle(title: 'Banners da Home'),
                 const SizedBox(height: 16),
 
@@ -193,7 +201,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24),
-                    child: _buildBannerField(
+                    child: BannerField(
                       index: index,
                       controller: controller,
                       onDelete: () {
@@ -231,6 +239,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 const SizedBox(height: 32),
 
                 // Seção de Ações
+                // Seção de Ações
                 const SectionTitle(title: 'Ações'),
                 const SizedBox(height: 16),
 
@@ -256,108 +265,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     );
   }
 
-  Widget _buildColorPickerSection(
-    String label,
-    Color currentColor, {
-    required void Function(Color) onColorChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: currentColor,
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Cor Hex: #${currentColor.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      _showColorPicker(context, currentColor, onColorChanged);
-                    },
-                    child: const Text('Escolher Cor'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBannerField({
-    required int index,
-    required TextEditingController controller,
-    required VoidCallback onDelete,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Banner ${index + 1}',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  hintText: 'https://example.com/banner.jpg',
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: onDelete,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // Preview do Banner
-        Container(
-          height: 100,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Image.network(
-            controller.text,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(child: Icon(Icons.broken_image));
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   void _updateBanners() {
     final bannerUrls = _bannerControllers
         .map((controller) => controller.text)
@@ -377,69 +284,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     context.read<ThemeCubit>().updateBanners(bannerUrls);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Banners atualizados com sucesso!')),
-    );
-  }
-
-  void _showColorPicker(
-    BuildContext context,
-    Color initialColor,
-    Function(Color) onColorChanged,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        Color selectedColor = initialColor;
-        return AlertDialog(
-          title: const Text('Escolher Cor'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Aqui você pode adicionar um color picker mais completo
-                // Por enquanto, vamos usar uma lista de cores predefinidas
-                Wrap(
-                  spacing: 8,
-                  children:
-                      [
-                            const Color(0xFF1976D2), // Azul
-                            const Color(0xFFFF6D00), // Laranja
-                            const Color(0xFF4CAF50), // Verde
-                            const Color(0xFFE91E63), // Rosa
-                            const Color(0xFF9C27B0), // Roxo
-                            const Color(0xFF00BCD4), // Ciano
-                            const Color(0xFFFFC107), // Âmbar
-                            const Color(0xFFFF5722), // Vermelho
-                          ]
-                          .map(
-                            (color) => GestureDetector(
-                              onTap: () {
-                                selectedColor = color;
-                                Navigator.pop(context);
-                                onColorChanged(color);
-                              },
-                              child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  border: Border.all(
-                                    color: selectedColor == color
-                                        ? Colors.black
-                                        : Colors.transparent,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -470,20 +314,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ],
         );
       },
-    );
-  }
-}
-
-class SectionTitle extends StatelessWidget {
-  final String title;
-
-  const SectionTitle({required this.title, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     );
   }
 }

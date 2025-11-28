@@ -64,6 +64,36 @@ export class ProductController {
     type: String,
     description: 'Termo de busca (nome ou descrição)',
   })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    description: 'Campo para ordenação (name, price)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC'],
+    description: 'Direção da ordenação (ASC, DESC)',
+  })
+  @ApiQuery({
+    name: 'minPrice',
+    required: false,
+    type: Number,
+    description: 'Preço mínimo',
+  })
+  @ApiQuery({
+    name: 'maxPrice',
+    required: false,
+    type: Number,
+    description: 'Preço máximo',
+  })
+  @ApiQuery({
+    name: 'provider',
+    required: false,
+    type: String,
+    description: 'Filtro por fornecedor (brazilian_provider, european_provider)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Lista paginada de produtos',
@@ -72,17 +102,29 @@ export class ProductController {
     @Query('page') page: string = '1',
     @Query('pageSize') pageSize: string = '10',
     @Query('searchTerm') searchTerm?: string,
+    @Query('sortBy') sortBy: string = 'name',
+    @Query('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('provider') provider?: string,
   ) {
     const pageNum = parseInt(page, 10) || 1;
     const pageSizeNum = Math.min(
       Math.max(parseInt(pageSize, 10) || 10, 1),
       100,
     );
+    const minPriceNum = minPrice ? parseFloat(minPrice) : undefined;
+    const maxPriceNum = maxPrice ? parseFloat(maxPrice) : undefined;
 
     return this.productApplicationService.getProductsPaginated(
       pageNum,
       pageSizeNum,
       searchTerm,
+      sortBy,
+      sortOrder,
+      minPriceNum,
+      maxPriceNum,
+      provider,
     );
   }
 }

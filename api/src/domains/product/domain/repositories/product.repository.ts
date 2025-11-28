@@ -8,6 +8,11 @@ export interface IProductRepository {
     page: number,
     pageSize: number,
     searchTerm?: string,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
+    minPrice?: number,
+    maxPrice?: number,
+    provider?: string,
   ): Promise<PaginatedResponseDto<Product>>;
   findByProvider(provider: string): Promise<Product[]>;
   deleteByProvider(provider: string): Promise<number>;

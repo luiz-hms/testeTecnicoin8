@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 class Config {
   Future<void> configApp() async {
     WidgetsFlutterBinding.ensureInitialized();
-    _loadEnvs();
+    await _loadEnvs();
   }
 
   Future<void> _loadEnvs() => Environments.loadEnvs();
